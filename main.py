@@ -1,6 +1,5 @@
 from quickz import Quickz
 import asyncio
-import time
 
 game_pin = int(input('Enter Game Pin: '))
 
