@@ -1,40 +1,14 @@
-import websockets
+from quickz import Quickz
 import asyncio
-import json
-import names
-from colorama import Fore, init
-
-init()
+import time
 
 game_pin = int(input('Enter Game Pin: '))
-bot_name = input('Enter Bot Name: ')
+
+async def flood_game():
+    client = Quickz()
+    
+    while True: # a while true is done because the maximum amount of players that can join a game is 4 (while true will override that), because of the poor servers quickz has. (literally made by a child Lol with no experience.)
+        await client.flood(game_pin)
 
 
-async def quickz():
-    async with websockets.connect(f"wss://quickz.org/api/game?pin={game_pin}&name={bot_name}&token=false") as ws:
-        while True:
-            message = await ws.recv()
-            msg = json.loads(message)
-
-            if message == '{"ok":false,"error":"Invalid pin"}':
-                print(Fore.RED + '[SOCKET] No game found.')
-                break
-            if message == '{"type":"join","ok":true,"late":false}':
-                print(Fore.GREEN + f"[SOCKET] Joined game with name {bot_name}")
-            if message == '{"type":"begin"}':
-                print(Fore.CYAN + '[SOCKET] Game starting')
-            if message == '{"type":"kick"}':
-                print(Fore.RED + f"[SOCKET] {bot_name} was kicked!")
-                break
-            if msg['type'] == 'question':
-                answer = msg['question']['answers'][0]['text']
-
-                await ws.send(json.dumps({"type": "answer", "answer": answer}))
-
-                print(Fore.BLUE + 'Question answered.')
-            if msg['type'] == 'end':
-                print(Fore.MAGENTA + '[SOCKET] Game ended')
-                break
-
-
-asyncio.get_event_loop().run_until_complete(quickz())
+asyncio.get_event_loop().run_until_complete(flood_game())
